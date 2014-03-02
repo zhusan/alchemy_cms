@@ -166,7 +166,7 @@ module Alchemy
         options
       end
 
-    private
+      private
 
       # Aggregates the attributes from given source for copy of page.
       #
@@ -298,7 +298,19 @@ module Alchemy
       set_language_code
     end
 
-  private
+    def sort_children(child_items)
+      prev_child = nil
+      child_ids = child_items.collect { |i| i['id'] }
+      children = Page.find(child_ids)
+      children.each do |child|
+        child_item = child_items.detect { |i| i['id'] == child.id.to_s }
+        prev_child.nil? ? child.move_to_child_of(self) : child.move_to_right_of(prev_child)
+        child.sort_children(child_item['children']) unless child_item['children'].nil?
+        prev_child = child
+      end
+    end
+
+    private
 
     # Returns the next or previous page on the same level or nil.
     #

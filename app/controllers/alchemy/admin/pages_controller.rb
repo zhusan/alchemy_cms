@@ -204,13 +204,15 @@ module Alchemy
         @page_root = Page.language_root_for(session[:language_id])
 
         # Taken from https://github.com/matenia/jQuery-Awesome-Nested-Set-Drag-and-Drop
-        neworder = JSON.parse(params[:set])
+        items = JSON.parse(params[:set])
         prev_item = nil
-        neworder.each do |item|
-          dbitem = Page.find(item['id'])
-          prev_item.nil? ? dbitem.move_to_child_of(@page_root) : dbitem.move_to_right_of(prev_item)
-          sort_children(item, dbitem) unless item['children'].nil?
-          prev_item = dbitem.reload
+        page_ids = items.collect { |i| i['id'] }
+        pages = Page.find(page_ids)
+        pages.each do |page|
+          item = items.detect { |i| i['id'] == page.id.to_s }
+          prev_item.nil? ? page.move_to_child_of(@page_root) : page.move_to_right_of(prev_item)
+          page.sort_children(item['children']) if item['children'].present?
+          prev_item = page
         end
 
         flash[:notice] = _t("Pages order saved")
