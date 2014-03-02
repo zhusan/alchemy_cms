@@ -58,7 +58,7 @@ module Alchemy
     attr_accessor :do_not_sweep
     attr_accessor :do_not_validate_language
 
-    before_save :set_language_code, :unless => :systempage?
+    before_save :set_language_code, if: -> { language_id_changed? }, :unless => :systempage?
     before_save :set_restrictions_to_child_pages, :if => :restricted_changed?, :unless => :systempage?
     before_save :inherit_restricted_status, :if => proc { parent && parent.restricted? }, :unless => :systempage?
     after_update :create_legacy_url, :if => :urlname_changed?, :unless => :redirects_to_external?
@@ -134,7 +134,7 @@ module Alchemy
       def paste_from_clipboard(source, new_parent, new_name)
         page = copy(source, {
           parent_id: new_parent.id,
-          language: new_parent.language,
+          language_id: new_parent.language_id,
           name: new_name,
           title: new_name
         })
@@ -337,7 +337,7 @@ module Alchemy
     end
 
     def set_language_code
-      return false if self.language.blank?
+      return unless language
       self.language_code = self.language.code
     end
 

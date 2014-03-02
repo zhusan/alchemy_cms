@@ -157,6 +157,12 @@ module Alchemy
           @page.language_code.should == "kl"
         end
 
+        it "should set the language code only if language_id changes" do
+          @page.stub(language_id_changed?: false)
+          @page.save
+          @page.language_code.should == nil
+        end
+
         it "should autogenerate the elements" do
           @page.save
           @page.elements.should_not be_empty
