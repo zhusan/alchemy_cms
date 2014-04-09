@@ -1,1 +1,5 @@
-../../../../db/migrate/20130828121120_remove_do_not_index_from_alchemy_essence_richtexts.rb
+class RemoveDoNotIndexFromAlchemyEssenceRichtexts < ActiveRecord::Migration
+  def up
+    remove_column :alchemy_essence_richtexts, :do_not_index
+  end
+end

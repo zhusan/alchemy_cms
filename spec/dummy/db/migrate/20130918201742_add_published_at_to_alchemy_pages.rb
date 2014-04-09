@@ -1,1 +1,5 @@
-../../../../db/migrate/20130918201742_add_published_at_to_alchemy_pages.rb
+class AddPublishedAtToAlchemyPages < ActiveRecord::Migration
+  def change
+    add_column :alchemy_pages, :published_at, :timestamp
+  end
+end
