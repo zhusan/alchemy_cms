@@ -1,2 +1,20 @@
 <%# This file only exist for cases where one want to override the login view %>
-<%= render :template => 'layouts/alchemy/admin' %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Alchemy CMS</title>
+    <%= stylesheet_link_tag    "application", media: "all" %>
+    <%= javascript_include_tag "application" %>
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+    <div class="container">
+      <div id="alert-box">
+      </div>
+      <div>
+        <%= yield %>
+      </div>
+    </div>
+  </body>
+</html>
+<%# <%= render :template => 'layouts/alchemy/admin' %>

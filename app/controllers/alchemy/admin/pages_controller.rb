@@ -69,6 +69,9 @@ module Alchemy
           @locked_pages = Page.from_current_site.all_locked_by(current_alchemy_user)
         end
         @layoutpage = @page.layoutpage?
+        if @page.urlname == 'index'
+          redirect_to root_path
+        end
       end
 
       # Set page configuration like page names, meta tags and states.
