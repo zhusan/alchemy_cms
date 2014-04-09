@@ -42,6 +42,8 @@ Gem::Specification.new do |gem|
   gem.add_runtime_dependency 'turbolinks',                       '~> 2.0'
   gem.add_runtime_dependency 'non-stupid-digest-assets',         '~> 1.0.3'
   gem.add_runtime_dependency 'active_model_serializers',         '~> 0.8.1'
+  #add by zs  20140409
+  gem.add_runtime_dependency 'will_paginate',         '~> 3.0'
 
   gem.add_development_dependency 'rspec-rails'
   gem.add_development_dependency 'capybara'

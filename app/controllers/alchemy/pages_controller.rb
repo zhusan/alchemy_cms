@@ -101,6 +101,9 @@ module Alchemy
         else
           @root_page = Language.current_root_page
         end
+        if params[:urlname] = 'index'
+          @pages = Page.paginate(:page => params[:page], :per_page => 20)
+        end
       end
     end
 
