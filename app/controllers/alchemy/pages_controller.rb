@@ -102,7 +102,7 @@ module Alchemy
           @root_page = Language.current_root_page
         end
         if params[:urlname] = 'index'
-          @pages = Page.paginate(:page => params[:page], :per_page => 5)
+          @pages = Page.where("title is not null").paginate(:page => params[:page], :per_page => 5)
         end
       end
     end
