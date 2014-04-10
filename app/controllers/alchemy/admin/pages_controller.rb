@@ -69,6 +69,7 @@ module Alchemy
           @locked_pages = Page.from_current_site.all_locked_by(current_alchemy_user)
         end
         @layoutpage = @page.layoutpage?
+
         if @page.urlname == 'index'
           redirect_to root_path
         end
@@ -207,84 +208,90 @@ module Alchemy
 
       private
 
-      def copy_of_language_root
-        page_copy = Page.copy(
-          language_root_to_copy_from,
-          language_id: params[:languages][:new_lang_id],
-          language_code: Language.current.code
-        )
-        page_copy.move_to_child_of Page.root
-        page_copy
-      end
-
-      def language_root_to_copy_from
-        Page.language_root_for(params[:languages][:old_lang_id])
-      end
-
-      def load_page
-        @page = Page.find(params[:id])
-      end
-
-      def pages_from_raw_request
-        request.raw_post.split('&').map { |i| i = {i.split('=')[0].gsub(/[^0-9]/, '') => i.split('=')[1]} }
-      end
-
-      # Taken from https://github.com/matenia/jQuery-Awesome-Nested-Set-Drag-and-Drop
-      def sort_children(element, dbitem)
-        prevchild = nil
-        element['children'].each do |child|
-          childitem = Page.find(child['id'])
-          prevchild.nil? ? childitem.move_to_child_of(dbitem) : childitem.move_to_right_of(prevchild)
-          sort_children(child, childitem) unless child['children'].nil?
-          prevchild = childitem
+        def copy_of_language_root
+          page_copy = Page.copy(
+            language_root_to_copy_from,
+            language_id: params[:languages][:new_lang_id],
+            language_code: Language.current.code
+          )
+          page_copy.move_to_child_of Page.root
+          page_copy
         end
-      end
 
-      def redirect_path_for_switch_language
-        if request.referer && request.referer.include?('admin/layoutpages')
-          admin_layoutpages_path
-        else
-          admin_pages_path
+        def language_root_to_copy_from
+          Page.language_root_for(params[:languages][:old_lang_id])
         end
-      end
 
-      def redirect_path_after_create_page
-        if @page.redirects_to_external?
-          admin_pages_path
-        else
-          params[:redirect_to] || edit_admin_page_path(@page)
+        def load_page
+          @page = Page.find(params[:id])
+          if @page.page_layout == 'test_layout'
+            @pages = Page.have_title
+            @pages = @pages.includes(:tags).where("tags.name = ?", params[:tag_name])  if params[:tag_name].present?
+            @pages = @pages.page(params[:page]).per(5)
+            @page_tags = Page.get_tags
+          end
         end
-      end
 
-      def page_params
-        params.require(:page).permit(*secure_attributes)
-      end
-
-      def secure_attributes
-        if can?(:create, Alchemy::Page)
-          Page::PERMITTED_ATTRIBUTES + [:language_root, :parent_id, :language_id, :language_code]
-        else
-          Page::PERMITTED_ATTRIBUTES
+        def pages_from_raw_request
+          request.raw_post.split('&').map { |i| i = {i.split('=')[0].gsub(/[^0-9]/, '') => i.split('=')[1]} }
         end
-      end
 
-      def page_is_locked?
-        return if !@page.locker.try(:logged_in?)
-        @page.locked? && @page.locker != current_alchemy_user
-      end
-
-      def paste_from_clipboard
-        if params[:paste_from_clipboard]
-          source = Page.find(params[:paste_from_clipboard])
-          parent = Page.find_by(id: params[:page][:parent_id]) || Page.root
-          Page.copy_and_paste(source, parent, params[:page][:name])
+        # Taken from https://github.com/matenia/jQuery-Awesome-Nested-Set-Drag-and-Drop
+        def sort_children(element, dbitem)
+          prevchild = nil
+          element['children'].each do |child|
+            childitem = Page.find(child['id'])
+            prevchild.nil? ? childitem.move_to_child_of(dbitem) : childitem.move_to_right_of(prevchild)
+            sort_children(child, childitem) unless child['children'].nil?
+            prevchild = childitem
+          end
         end
-      end
 
-      def set_root_page
-        @page_root = Language.current_root_page
-      end
+        def redirect_path_for_switch_language
+          if request.referer && request.referer.include?('admin/layoutpages')
+            admin_layoutpages_path
+          else
+            admin_pages_path
+          end
+        end
 
+        def redirect_path_after_create_page
+          if @page.redirects_to_external?
+            admin_pages_path
+          else
+            params[:redirect_to] || edit_admin_page_path(@page)
+          end
+        end
+
+        def page_params
+          params.require(:page).permit(*secure_attributes)
+        end
+
+        def secure_attributes
+          if can?(:create, Alchemy::Page)
+            Page::PERMITTED_ATTRIBUTES + [:language_root, :parent_id, :language_id, :language_code]
+          else
+            Page::PERMITTED_ATTRIBUTES
+          end
+        end
+
+        def page_is_locked?
+          return if !@page.locker.try(:logged_in?)
+          @page.locked? && @page.locker != current_alchemy_user
+        end
+
+        def paste_from_clipboard
+          if params[:paste_from_clipboard]
+            source = Page.find(params[:paste_from_clipboard])
+            parent = Page.find_by(id: params[:page][:parent_id]) || Page.root
+            Page.copy_and_paste(source, parent, params[:page][:name])
+          end
+        end
+
+        def set_root_page
+          @page_root = Language.current_root_page
+        end
+
+      end
     end
   end
-end
