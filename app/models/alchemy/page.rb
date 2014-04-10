@@ -96,12 +96,17 @@ module Alchemy
     include Alchemy::Page::Cells
     include Alchemy::Page::Elements
 
+
+    scope :have_title,      -> {where("#{self.table_name}.title is not null")}
+
     # Class methods
     #
     class << self
 
       alias_method :rootpage, :root
-
+      def get_tags
+        self.tag_counts_on(:tags)
+      end
       # Used to store the current page previewed in the edit page template.
       #
       def current_preview=(page)

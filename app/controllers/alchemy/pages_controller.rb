@@ -45,19 +45,19 @@ module Alchemy
     #
     def load_page
       @page ||= if params[:urlname].present?
-        # Load by urlname. If a language is specified in the request parameters,
-        # scope pages to it to make sure we can raise a 404 if the urlname
-        # is not available in that language.
-        Page.contentpages.where(
-          urlname:       params[:urlname],
-          language_id:   Language.current.id,
-          language_code: params[:lang] || Language.current.code
-        ).first
-      else
-        # No urlname was given, so just load the language root for the
-        # currently active language.
-        Language.current_root_page
-      end
+                  # Load by urlname. If a language is specified in the request parameters,
+                  # scope pages to it to make sure we can raise a 404 if the urlname
+                  # is not available in that language.
+                  Page.contentpages.where(
+                    urlname:       params[:urlname],
+                    language_id:   Language.current.id,
+                    language_code: params[:lang] || Language.current.code
+                  ).first
+                else
+                  # No urlname was given, so just load the language root for the
+                  # currently active language.
+                  Language.current_root_page
+                end
     end
 
     def enforce_primary_host_for_site
@@ -102,7 +102,10 @@ module Alchemy
           @root_page = Language.current_root_page
         end
         if params[:urlname] = 'index'
-          @pages = Page.where("title is not null").paginate(:page => params[:page], :per_page => 5)
+          @pages = Page.have_title
+          @pages = @pages.includes(:tags).where("tags.name = ?", params[:tag_name])  if params[:tag_name].present?
+          @pages = @pages.page(params[:page]).per(5)
+          @page_tags = Page.get_tags
         end
       end
     end
@@ -188,8 +191,8 @@ module Alchemy
     #
     def render_fresh_page?
       !cache_page? || stale?(etag: page_etag,
-        last_modified: @page.published_at,
-        public: !@page.restricted)
+                             last_modified: @page.published_at,
+                             public: !@page.restricted)
     end
 
   end
