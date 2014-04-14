@@ -27,6 +27,10 @@ module Alchemy
 
       def create
         @attachment = Attachment.new(attachment_attributes)
+        #edit at 20140414
+        #use qiniu storage
+        @attachment.webfile = attachment_attributes[:file]
+        #end 
         if @attachment.save
           if in_overlay?
             set_instance_variables

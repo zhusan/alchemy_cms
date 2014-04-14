@@ -16,15 +16,15 @@ module Alchemy
 
     def thumbnail
       case params[:size]
-        when 'small'  then @size = '80x60'
-        when 'medium' then @size = '160x120'
-        when 'large'  then @size = '240x180'
-        when nil      then @size = '111x93'
+      when 'small'  then @size = '80x60'
+      when 'medium' then @size = '160x120'
+      when 'large'  then @size = '240x180'
+      when nil      then @size = '111x93'
       else
         @size = params[:size]
       end
-
       respond_to { |format| send_image(processed_image, format) }
+
     end
 
     def zoom
@@ -87,8 +87,8 @@ module Alchemy
     # Returns the Imagemagick geometry string used to resize the image.
     def resize_geometry_string
       @resize_geometry_string ||= begin
-        params[:upsample] == 'true' ? @size.to_s : "#{@size}>"
-      end
+                                    params[:upsample] == 'true' ? @size.to_s : "#{@size}>"
+                                  end
     end
 
     # Returns normalized width and height values

@@ -65,16 +65,24 @@ module Alchemy
           crop_size: content.essence.crop_size.blank? ? nil : content.essence.crop_size,
           crop: content.essence.crop_size.blank? && content.essence.crop_from.blank? ? 'crop' : nil
         }
-        image_tag(
-          alchemy.thumbnail_path({
+        #edit at 20140414
+        #use qiniu storage
+        if Settings.alchemy_cms.qiniu
+          image_url = content.ingredient.send_image_url("little")
+        else
+          image_url = alchemy.thumbnail_path({
             id: content.ingredient.id,
             name: content.ingredient.urlname,
             sh: content.ingredient.security_token(image_options)
-          }.merge(image_options)),
+          }.merge(image_options))
+        end
+        image_tag(
+          image_url,
           alt: content.ingredient.name,
           class: 'img_paddingtop',
           title: _t(:image_name) + ": #{content.ingredient.name}"
         )
+        #end
       end
 
       private

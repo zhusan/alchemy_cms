@@ -101,12 +101,12 @@ module Alchemy
         else
           @root_page = Language.current_root_page
         end
-        if @page.page_layout == 'test_layout'
+        # if @page.page_layout == 'test_layout'
           @pages = Page.have_title
           @pages = @pages.includes(:tags).where("tags.name = ?", params[:tag_name])  if params[:tag_name].present?
           @pages = @pages.page(params[:page]).per(5)
           @page_tags = Page.get_tags
-        end
+        # end
       end
     end
 

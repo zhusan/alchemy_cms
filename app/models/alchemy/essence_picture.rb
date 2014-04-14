@@ -53,8 +53,16 @@ module Alchemy
     #
     def picture_url(options = {})
       return if picture.nil?
-      routes.show_picture_path(picture_params(options))
+      #edit at 20140414
+      #use qiniu storage
+      if Settings.alchemy_cms.qiniu
+        return picture.send_image_url
+      else
+        routes.show_picture_path(picture_params(options))
+      end
+      #end
     end
+
 
     # The name of the picture used as preview text in element editor views.
     #

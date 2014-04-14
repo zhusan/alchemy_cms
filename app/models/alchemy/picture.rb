@@ -19,6 +19,9 @@
 
 module Alchemy
   class Picture < ActiveRecord::Base
+    if Settings.alchemy_cms.qiniu
+      mount_uploader :webfile, WebfileUploader
+    end
     include Alchemy::NameConversions
     include Alchemy::Touching
     include Alchemy::Picture::Sweeping
@@ -80,9 +83,9 @@ module Alchemy
 
       def filtered_by(filter = '')
         case filter
-          when 'recent'      then recent
-          when 'last_upload' then last_upload
-          when 'without_tag' then without_tag
+        when 'recent'      then recent
+        when 'last_upload' then last_upload
+        when 'without_tag' then without_tag
         else
           all
         end
@@ -91,6 +94,14 @@ module Alchemy
     end
 
     # Instance methods
+
+    def send_image_url(size = nil)
+      if size.present?
+        self.webfile.to_s + "-" + size.to_s
+      else 
+        self.webfile.to_s
+      end
+    end
 
     # Updates name and tag_list attributes.
     #

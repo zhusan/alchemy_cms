@@ -17,6 +17,9 @@
 
 module Alchemy
   class Attachment < ActiveRecord::Base
+    if Settings.alchemy_cms.qiniu
+      mount_uploader :webfile, WebfileUploader
+    end
     include Alchemy::Filetypes
     include Alchemy::NameConversions
     include Alchemy::Touching
@@ -63,6 +66,11 @@ module Alchemy
     end
 
     # Instance methods
+
+    def send_web_url
+      self.webfile.to_s
+    end
+
 
     def to_jq_upload
       {

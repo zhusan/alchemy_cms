@@ -32,6 +32,9 @@ module Alchemy
       def create
         @picture = Picture.new(picture_params)
         @picture.name = @picture.humanized_name
+        if Settings.alchemy_cms.qiniu
+          @picture.webfile = picture_params[:image_file] 
+        end
         if @picture.save
           set_size_or_default
           if in_overlay?

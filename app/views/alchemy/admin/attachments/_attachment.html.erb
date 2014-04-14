@@ -24,10 +24,19 @@
   <td class="file_size"><%= number_to_human_size(attachment.file_size) %></td>
   <td class="date"><%= l(attachment.created_at, format: :short) %></td>
   <td class="tools long">
-  <% if can?(:download, attachment) %>
+    <% if can?(:download, attachment) %>
+      <%
+        if Settings.alchemy_cms.qiniu
+          attachment_url = attachment.send_web_url
+        else
+          attachment_url = alchemy.download_admin_attachment_path(attachment)
+        end
+   
+   
+    %>
     <%= link_to(
       "",
-      alchemy.download_admin_attachment_path(attachment),
+      attachment_url,
       title: _t("download_file", filename: attachment.file_name),
       class: "icon file_download"
     ) %>
