@@ -78,6 +78,7 @@ module Alchemy
     validates_presence_of :page_layout, :unless => :systempage?
     validates_format_of :page_layout, with: /\A[a-z0-9_-]+\z/, unless: -> { systempage? || page_layout.blank? }
     validates_presence_of :parent_id, :if => proc { Page.count > 1 }
+    validate_harmonious_of  :title
 
     attr_accessor :do_not_sweep
     attr_accessor :do_not_validate_language
