@@ -30,6 +30,13 @@ module Alchemy
         Page.current_preview = @page
         # Setting the locale to pages language, so the page content has it's correct translations.
         ::I18n.locale = @page.language_code
+        if @page.page_layout == 'test_layout'
+          @pages = Page.have_title
+          @pages = @pages.includes(:tags).where("tags.name = ?", params[:tag_name])  if params[:tag_name].present?
+          @pages = @pages.page(params[:page]).per(5)
+          @page_tags = Page.get_tags
+        end
+
         render layout: 'application'
       rescue Exception => e
         exception_logger(e)
@@ -224,12 +231,6 @@ module Alchemy
 
         def load_page
           @page = Page.find(params[:id])
-          if @page.page_layout == 'test_layout'
-            @pages = Page.have_title
-            @pages = @pages.includes(:tags).where("tags.name = ?", params[:tag_name])  if params[:tag_name].present?
-            @pages = @pages.page(params[:page]).per(5)
-            @page_tags = Page.get_tags
-          end
         end
 
         def pages_from_raw_request
